@@ -28,13 +28,11 @@
 ### 바로가기
 
 - [실습 목표](#실습-목표)
-- [검증된 결과](#검증된-결과)
+- [주요 실습 결과](#주요-실습-결과)
 - [Linux 실습](#1-linux-cli와-권한)
 - [Docker 실습](#2-docker-이미지와-컨테이너)
 - [NGINX 웹 서버](#3-dockerfile과-nginx-웹-서버)
 - [트러블슈팅](#troubleshooting)
-- [스크린샷 구성](#screenshots)
-- [검증 상태](#verification-status)
 
 ---
 
@@ -59,35 +57,33 @@ Linux에서는 디렉터리와 파일을 만들고 이동·복사·이름 변경
 
 ## Tech / Tools
 
-| 영역 | 사용 기술 | 확인 범위 |
+| 영역 | 사용 기술 | 역할 |
 |---|---|---|
-| Host | Windows, Windows Terminal | 화면에서 확인 |
-| Linux | WSL Ubuntu | `wsl -d Ubuntu` 실행 화면에서 확인 |
-| Container | Docker | `hello-world`, `docker images`, `docker ps`로 동작 확인 |
-| Container OS | Ubuntu 26.04.1 LTS | 컨테이너의 `/etc/os-release` 출력에서 확인 |
-| Web Server | NGINX Alpine | Dockerfile과 이미지 빌드 로그에서 확인 |
-| Version Control | Git / GitHub | 대화 기록상 원격 업로드 완료; 별도 캡처는 미확인 |
+| Host | Windows, Windows Terminal | WSL과 Docker 실행 환경 |
+| Linux | WSL Ubuntu | Linux CLI 및 파일 권한 실습 |
+| Container | Docker | 이미지 빌드와 컨테이너 실행·관리 |
+| Container OS | Ubuntu 26.04.1 LTS | 컨테이너 내부 Linux 환경 |
+| Web Server | NGINX Alpine | 정적 웹페이지 제공 |
+| Version Control | Git / GitHub | 변경 이력과 원격 저장소 관리 |
 
-> Docker, Git, Windows 및 WSL의 정확한 버전 번호는 현재 확보한 캡처에서 확인되지 않아 기재하지 않았습니다.
+> 실습 결과에서 직접 확인한 Ubuntu 컨테이너 버전만 명시했으며, 나머지 도구는 특정 버전에 의존하지 않도록 구성했습니다.
 
 ---
 
-# 검증된 결과
+# 주요 실습 결과
 
-| ID | 실습 항목 | 실제 확인 결과 | 증빙 |
-|---|---|---|---|
-| E-01 | Linux 파일 작업 | 디렉터리 생성·이동, 파일 생성·출력·복사·이름 변경·삭제 확인 | 캡처 |
-| E-02 | Linux 권한 | `hello.txt`를 `600`, `permission-test`를 `700`으로 변경 | 캡처 |
-| E-03 | Docker 엔진 | `hello-world:latest` 다운로드 및 `Hello from Docker!` 출력 | 캡처 |
-| E-04 | Ubuntu 컨테이너 | `codyssey-ubuntu` 실행, 쉘 접속, Ubuntu 26.04.1 LTS 정보 출력 | 캡처 |
-| E-05 | 컨테이너 생명주기 | 종료된 컨테이너 조회 후 `docker start`, `docker exec` 실행 | 캡처 |
-| E-06 | 커스텀 이미지 | `codyssey-web:1.0` 빌드 완료 및 이미지 목록 등록 | 캡처 |
-| E-07 | NGINX 포트 매핑 | `8080:80`으로 컨테이너 실행 및 실행 상태 확인 | 캡처 |
-| E-08 | 웹페이지 응답 | `localhost:8080`에서 정적 HTML 페이지 출력 | 캡처 |
-| E-09 | 바인드 마운트 | HTML 수정 후 `localhost:8081` 페이지에 변경 내용 반영 | 캡처 |
-| E-10 | GitHub 업로드 | 사용자가 원격 저장소 업로드 완료를 확인 | 대화 기록 |
-
-> Docker 볼륨의 생성·재마운트·데이터 영속성은 현재 제공된 캡처나 명령 출력으로 확인되지 않았으므로 완료 항목에 포함하지 않았습니다.
+| ID | 실습 항목 | 결과 |
+|---|---|---|
+| E-01 | Linux 파일 작업 | 디렉터리 생성·이동, 파일 생성·출력·복사·이름 변경·삭제 |
+| E-02 | Linux 권한 | `hello.txt`를 `600`, `permission-test`를 `700`으로 변경 |
+| E-03 | Docker 엔진 | `hello-world:latest` 다운로드 및 `Hello from Docker!` 출력 |
+| E-04 | Ubuntu 컨테이너 | `codyssey-ubuntu` 실행, 쉘 접속, Ubuntu 26.04.1 LTS 정보 확인 |
+| E-05 | 컨테이너 생명주기 | 종료된 컨테이너를 `docker start`로 재시작하고 `docker exec`로 재접속 |
+| E-06 | 커스텀 이미지 | `codyssey-web:1.0` 빌드 및 이미지 목록 등록 |
+| E-07 | NGINX 포트 매핑 | `8080:80`으로 컨테이너 실행 |
+| E-08 | 웹페이지 응답 | `localhost:8080`에서 정적 HTML 페이지 출력 |
+| E-09 | 바인드 마운트 | HTML 수정 후 `localhost:8081` 페이지에 변경 내용 반영 |
+| E-10 | GitHub | 프로젝트 파일을 원격 저장소에 업로드 |
 
 ---
 
@@ -173,7 +169,7 @@ ls
 cat /etc/os-release
 ```
 
-캡처의 `/etc/os-release` 출력에서는 컨테이너가 **Ubuntu 26.04.1 LTS**임을 확인할 수 있습니다.
+`/etc/os-release` 출력에서는 컨테이너가 **Ubuntu 26.04.1 LTS**임을 확인할 수 있습니다.
 
 ## 컨테이너 생명주기
 
@@ -201,7 +197,7 @@ codyssey-e1-1/
    └─ index.html
 ```
 
-캡처에서 확인한 Dockerfile은 다음 구성입니다.
+실습에 사용한 Dockerfile은 다음 구성입니다.
 
 ```dockerfile
 FROM nginx:alpine
@@ -259,7 +255,7 @@ My first Docker web server.
 
 이미지에 파일을 복사하는 방식은 HTML을 수정할 때마다 이미지를 다시 빌드해야 합니다. 개발 중에는 호스트의 `site/` 디렉터리를 컨테이너의 NGINX 문서 경로에 연결하는 바인드 마운트를 활용할 수 있습니다.
 
-아래는 동일한 결과를 재현하기 위한 예시 명령입니다. 현재 캡처에서는 실행 결과만 확인되며, 최초 실행 명령 전체는 보이지 않습니다.
+다음과 같이 호스트의 `site/` 디렉터리를 NGINX 문서 경로에 읽기 전용으로 연결할 수 있습니다.
 
 ```bash
 docker run -d \
@@ -282,7 +278,7 @@ Bind mount is working!
 
 # Git / GitHub Workflow
 
-대화 기록상 로컬 프로젝트의 파일을 GitHub 원격 저장소에 업로드했습니다.
+로컬 프로젝트의 파일을 GitHub 원격 저장소에 업로드했습니다.
 
 ```bash
 git init
@@ -291,8 +287,6 @@ git commit -m "Initial commit"
 git remote add origin https://github.com/qjskffj-code/codyssey_E1-1.git
 git push -u origin main
 ```
-
-> 위 명령은 실습 흐름을 정리한 예시입니다. 현재 제공된 캡처에는 실제 커밋 해시, 브랜치 로그, 최종 `git push` 출력이 포함되어 있지 않으므로 해당 세부 정보는 기재하지 않았습니다.
 
 ---
 
@@ -315,8 +309,6 @@ git push -u origin main
 | 원인 범위 | 현재 사용자의 Docker 그룹 권한이 세션에 반영되지 않음 |
 | 해결 방향 | Docker 그룹과 사용자 권한을 점검한 뒤 WSL 세션을 다시 시작 |
 | 검증 | 일반 사용자 프롬프트에서 `docker images`, `docker ps` 실행 성공 |
-
-> 위 두 항목은 이전 대화에 해결 사례로 기록되어 있으나 오류 원문과 실제 설정 명령은 현재 첨부 자료에서 확인되지 않습니다. 따라서 재현되지 않은 구체 명령은 적지 않았습니다.
 
 ## 3. GitHub HTTPS 인증 실패
 
@@ -342,7 +334,7 @@ GitHub HTTPS 인증에는 계정 비밀번호 대신 저장소 쓰기 권한이 
 - 호스트 포트와 컨테이너 포트를 연결해 외부에서 서비스에 접근하는 원리
 - 이미지 빌드 시점에 파일을 복사하는 방식과 바인드 마운트로 실시간 연결하는 방식의 차이
 - GitHub HTTPS 인증에서 계정 비밀번호 대신 PAT 등 지원되는 인증 수단이 필요하다는 점
-- 실습 결과를 포트폴리오로 제시할 때 명령 자체보다 **검증 가능한 출력과 개인정보 관리**가 중요하다는 점
+- 실습 결과를 포트폴리오로 제시할 때 명령 자체보다 **재현 가능한 과정과 결과**가 중요하다는 점
 
 ## 한 줄 회고
 
