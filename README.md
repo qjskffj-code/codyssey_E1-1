@@ -324,6 +324,74 @@ GitHub HTTPS 인증에는 계정 비밀번호 대신 저장소 쓰기 권한이 
 
 ---
 
+# 실행 화면
+
+## Linux 파일 작업
+
+디렉터리와 파일을 생성하고 내용을 작성한 뒤 복사 결과를 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/01-linux-file-operations.png" alt="Linux 파일과 디렉터리 생성 및 복사" width="900">
+</p>
+
+## Linux 권한 변경
+
+`chmod`를 이용해 파일과 디렉터리의 소유자 권한을 변경했습니다.
+
+<p align="center">
+  <img src="assets/images/02-linux-permissions.png" alt="Linux 파일과 디렉터리 권한 변경" width="900">
+</p>
+
+## Docker 실행 확인
+
+`hello-world` 컨테이너를 실행해 Docker 클라이언트와 데몬이 정상적으로 연결되는지 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/03-docker-hello-world.png" alt="Docker hello-world 실행 성공" width="900">
+</p>
+
+## Ubuntu 컨테이너
+
+Ubuntu 컨테이너에 접속해 기본 경로와 운영체제 정보를 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/04-ubuntu-container.png" alt="Ubuntu 컨테이너 실행과 운영체제 정보" width="900">
+</p>
+
+## 컨테이너 생명주기
+
+종료된 컨테이너를 다시 시작하고 `docker exec`로 재접속했습니다.
+
+<p align="center">
+  <img src="assets/images/05-container-lifecycle.png" alt="Docker 컨테이너 재시작과 재접속" width="900">
+</p>
+
+## 커스텀 이미지 빌드
+
+Dockerfile을 이용해 `codyssey-web:1.0` 이미지를 빌드했습니다.
+
+<p align="center">
+  <img src="assets/images/06-custom-image-build.png" alt="NGINX 커스텀 이미지 빌드" width="900">
+</p>
+
+## NGINX 포트 매핑
+
+호스트의 8080번 포트와 컨테이너의 80번 포트를 연결해 웹 서버를 실행했습니다.
+
+<p align="center">
+  <img src="assets/images/07-nginx-port-mapping.png" alt="NGINX 컨테이너 포트 매핑" width="900">
+</p>
+
+## 바인드 마운트 반영
+
+호스트의 HTML 변경 내용이 실행 중인 NGINX 페이지에 바로 반영되는 것을 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/08-bind-mount-update.png" alt="바인드 마운트로 변경된 HTML 반영" width="900">
+</p>
+
+---
+
 # What I Learned
 
 - Linux에서 상대 경로와 절대 경로를 구분하고 파일 시스템을 CLI로 탐색하는 방법
