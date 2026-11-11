@@ -435,6 +435,10 @@ persistence-after
 
 첫 번째 컨테이너를 삭제한 뒤 동일한 호스트 디렉터리를 새 컨테이너에 마운트했을 때도 `persistent data`가 출력되었습니다. 따라서 파일이 삭제된 컨테이너 내부가 아니라 호스트의 `persistence-proof/`에 유지됐음을 확인했습니다.
 
+<p align="center">
+  <img src="assets/images/10-bind-mount-persistence.png" alt="컨테이너 삭제 및 재생성 후 바인드 마운트 데이터 지속성 확인" width="900">
+</p>
+
 ## 바인드 마운트와 볼륨, 백업 원칙
 
 | 구분 | 바인드 마운트 | Docker 볼륨 |
