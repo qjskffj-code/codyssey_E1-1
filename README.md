@@ -123,6 +123,7 @@ Client:
 | E-09 | 바인드 마운트 | HTML 수정 후 `localhost:8081` 페이지에 변경 내용 반영 |
 | E-10 | GitHub | 프로젝트 파일을 원격 저장소에 업로드 |
 | E-11 | Docker 환경 검증 | CLI 29.6.2, Docker Desktop 4.85.0, Linux 엔진 29.6.2 확인 |
+| E-12 | 데이터 지속성 | 바인드 마운트 컨테이너 삭제·재생성 후 동일 파일 내용 확인 |
 
 ---
 
@@ -402,28 +403,37 @@ Bind mount is working!
 - 다른 위치에서 명령을 실행하면 `$(pwd)`가 달라지므로 먼저 `pwd`와 `ls site`로 경로를 확인해야 합니다.
 - 정적 파일 제공처럼 컨테이너가 호스트 파일을 수정할 필요가 없으면 `readonly`를 사용해 의도하지 않은 변경을 막습니다.
 
-## 삭제·재생성 후 데이터 지속성 검증 절차
+## 삭제·재생성 후 데이터 지속성 검증
 
-바인드 마운트의 데이터는 호스트에 저장되므로 컨테이너를 삭제해도 남아야 합니다. 다음은 이를 검증하는 재현 절차입니다.
+바인드 마운트의 데이터가 컨테이너 쓰기 계층이 아닌 호스트에 저장되는지 확인하기 위해 전용 파일과 두 개의 컨테이너를 사용했습니다.
 
-```bash
-# 1. 호스트 파일 작성
-echo "persistent data" > site/persistence.txt
+```powershell
+$proof = Join-Path $PWD "persistence-proof"
+New-Item -ItemType Directory -Force -Path $proof | Out-Null
+Set-Content -LiteralPath (Join-Path $proof "evidence.txt") -Value "persistent data" -NoNewline
 
-# 2. 첫 컨테이너에서 확인
-docker run -d --name persistence-1 \
-  --mount type=bind,source="$(pwd)/site",target=/data \
-  ubuntu sleep infinity
-docker exec persistence-1 cat /data/persistence.txt
+docker run --name persistence-before --mount "type=bind,source=$proof,target=/data,readonly" ubuntu cat /data/evidence.txt
+docker rm persistence-before
 
-# 3. 컨테이너 삭제 후 같은 경로로 재생성
-docker rm -f persistence-1
-docker run --rm \
-  --mount type=bind,source="$(pwd)/site",target=/data,readonly \
-  ubuntu cat /data/persistence.txt
+docker run --name persistence-after --mount "type=bind,source=$proof,target=/data,readonly" ubuntu cat /data/evidence.txt
+docker rm persistence-after
 ```
 
-두 번째 컨테이너에서도 `persistent data`가 출력되면 데이터가 컨테이너 쓰기 계층이 아니라 호스트에 저장됐음을 입증합니다. **이 절차는 재검증용으로 추가했으며, 삭제·재생성 결과 스크린샷은 아직 제출하지 않았습니다.**
+실제 실행 결과는 다음과 같습니다.
+
+```text
+=== 컨테이너 삭제 전 ===
+persistent data
+
+=== 첫 번째 컨테이너 삭제 ===
+persistence-before
+
+=== 새 컨테이너에서 다시 확인 ===
+persistent data
+persistence-after
+```
+
+첫 번째 컨테이너를 삭제한 뒤 동일한 호스트 디렉터리를 새 컨테이너에 마운트했을 때도 `persistent data`가 출력되었습니다. 따라서 파일이 삭제된 컨테이너 내부가 아니라 호스트의 `persistence-proof/`에 유지됐음을 확인했습니다.
 
 ## 바인드 마운트와 볼륨, 백업 원칙
 
