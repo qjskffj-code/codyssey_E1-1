@@ -23,6 +23,7 @@
 | 핵심 결과 | Linux 파일 작업, 권한 변경, Docker 실행 확인, Ubuntu 컨테이너 관리, NGINX 커스텀 이미지 빌드, 웹 서비스 실행, 바인드 마운트 반영 |
 | 웹 이미지 | `nginx:alpine` 기반 `codyssey-web:1.0` |
 | 포트 매핑 | 호스트 `8080` → 컨테이너 `80`; 바인드 마운트 결과는 `8081`에서 확인 |
+| 데이터 영속성 | Docker 볼륨 `codyssey-data`로 컨테이너 삭제 후에도 데이터 유지 확인 |
 | 저장소 | [GitHub Repository](https://github.com/qjskffj-code/codyssey_E1-1) |
 
 ### 바로가기
@@ -32,6 +33,7 @@
 - [Linux 실습](#1-linux-cli와-권한)
 - [Docker 실습](#2-docker-이미지와-컨테이너)
 - [NGINX 웹 서버](#3-dockerfile과-nginx-웹-서버)
+- [Docker 볼륨](#5-docker-볼륨-영속성)
 - [트러블슈팅](#troubleshooting)
 
 ---
@@ -124,6 +126,8 @@ Client:
 | E-10 | GitHub | 프로젝트 파일을 원격 저장소에 업로드 |
 | E-11 | Docker 환경 검증 | CLI 29.6.2, Docker Desktop 4.85.0, Linux 엔진 29.6.2 확인 |
 | E-12 | 데이터 지속성 | 바인드 마운트 컨테이너 삭제·재생성 후 동일 파일 내용 확인 |
+| E-13 | Docker 볼륨 영속성 | `codyssey-data` 볼륨에 쓴 데이터가 컨테이너 삭제 후 새 컨테이너에서도 유지됨 |
+| E-14 | Git 설정 | 사용자 정보와 기본 브랜치(`main`) 설정 확인 |
 
 ---
 
@@ -472,7 +476,61 @@ docker run --rm \
 
 ---
 
+# 5. Docker 볼륨 영속성
+
+바인드 마운트 검증에 이어, Docker가 관리하는 **이름 있는 볼륨(named volume)** 에 쓴 데이터가 컨테이너 삭제 후에도 남는지 직접 확인했습니다.
+
+```powershell
+docker volume create codyssey-data
+docker volume ls
+
+# 1) 첫 번째 컨테이너에 볼륨 연결 후 데이터 쓰기
+docker run -d --name vol-test -v codyssey-data:/data ubuntu sleep infinity
+docker exec vol-test bash -c "echo 'hello volume' > /data/hello.txt && cat /data/hello.txt"
+
+# 2) 컨테이너 삭제
+docker rm -f vol-test
+docker ps -a
+
+# 3) 새 컨테이너에 같은 볼륨 연결 후 확인
+docker run -d --name vol-test2 -v codyssey-data:/data ubuntu sleep infinity
+docker exec vol-test2 cat /data/hello.txt
+
+# 4) 정리
+docker rm -f vol-test2
+```
+
+| 시점 | 명령 | 결과 |
+|---|---|---|
+| 삭제 전 | `docker exec vol-test ... cat /data/hello.txt` | `hello volume` |
+| 삭제 | `docker rm -f vol-test` | `docker ps -a` 목록에서 `vol-test` 사라짐 |
+| 삭제 후 (새 컨테이너) | `docker exec vol-test2 cat /data/hello.txt` | `hello volume` (유지) |
+
+데이터가 컨테이너의 쓰기 레이어가 아니라 볼륨에 저장되므로, 컨테이너를 지우고 새로 만들어도 같은 볼륨을 연결하면 데이터가 그대로 남아 있습니다. 전체 화면은 [Docker 볼륨 영속성 실행 화면](#docker-볼륨-영속성)에서 확인할 수 있습니다.
+
+---
+
 # Git / GitHub Workflow
+
+## Git 설정
+
+사용자 정보와 기본 브랜치를 설정하고 확인했습니다.
+
+```powershell
+git --version
+git config --global --list
+```
+
+```text
+git version 2.38.1.windows.1
+user.email=289979188+qjskffj-code@users.noreply.github.com
+user.name=eun10
+init.defaultbranch=main
+```
+
+> 이메일은 GitHub에서 제공하는 noreply 주소를 사용해 개인 이메일이 커밋에 노출되지 않도록 했습니다. 캡처의 개인 로컬 경로는 마스킹했습니다.
+
+## 원격 저장소 업로드
 
 로컬 프로젝트의 파일을 GitHub 원격 저장소에 업로드했습니다.
 
@@ -625,6 +683,22 @@ Dockerfile을 이용해 `codyssey-web:1.0` 이미지를 빌드했습니다.
   <img src="assets/images/08-bind-mount-update.png" alt="바인드 마운트로 변경된 HTML 반영" width="900">
 </p>
 
+## Docker 볼륨 영속성
+
+볼륨에 저장한 데이터가 컨테이너 삭제 후 새 컨테이너에서도 유지되는 것을 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/11-docker-volume.png" alt="Docker 볼륨 영속성 검증" width="900">
+</p>
+
+## Git 설정
+
+Git 사용자 정보와 기본 브랜치 설정을 확인했습니다.
+
+<p align="center">
+  <img src="assets/images/12-git-config.png" alt="Git 사용자 정보와 기본 브랜치 설정" width="900">
+</p>
+
 ---
 
 # What I Learned
@@ -636,6 +710,7 @@ Dockerfile을 이용해 `codyssey-web:1.0` 이미지를 빌드했습니다.
 - Dockerfile의 명령을 이용해 동일한 실행 환경을 이미지로 재현하는 방법
 - 호스트 포트와 컨테이너 포트를 연결해 외부에서 서비스에 접근하는 원리
 - 이미지 빌드 시점에 파일을 복사하는 방식과 바인드 마운트로 실시간 연결하는 방식의 차이
+- 컨테이너를 삭제해도 데이터를 남기려면 Docker 볼륨처럼 컨테이너 밖 저장소를 사용해야 한다는 점
 - GitHub HTTPS 인증에서 계정 비밀번호 대신 PAT 등 지원되는 인증 수단이 필요하다는 점
 - 실습 결과를 포트폴리오로 제시할 때 명령 자체보다 **재현 가능한 과정과 결과**가 중요하다는 점
 
